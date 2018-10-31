@@ -37,4 +37,17 @@ public class AlumnoController {
         } 
     }
     
+        @RequestMapping(value ="/ListarAlumnosxEspec/{IdEspecialidad}", 
+            method = RequestMethod.GET, 
+            produces = MediaType.APPLICATION_JSON)
+    public ResponseEntity<List<Alumno>> ListarAlumnosxEspec(
+            @PathVariable String IdEspecialidad){
+        AlumnoDAO objAluDAO = new AlumnoDAO();
+        List<Alumno> lstAlumno = 
+                objAluDAO
+                   .ListarAlumnosxEspecialidad(IdEspecialidad);
+        return new ResponseEntity<>(lstAlumno, HttpStatus.OK);
+        
+    }
+    
 }
