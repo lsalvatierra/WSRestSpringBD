@@ -5,6 +5,7 @@
  */
 package idat.edu.pe.controller;
 
+import com.google.gson.Gson;
 import idat.edu.pe.bean.Alumno;
 import idat.edu.pe.dao.AlumnoDAO;
 import idat.edu.pe.exception.GeneralException;
@@ -13,8 +14,10 @@ import javax.ws.rs.core.MediaType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -27,7 +30,7 @@ public class AlumnoController {
     
     
     @RequestMapping(value="/ListarAlumnos", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON)
-    public ResponseEntity<List<Alumno>> ListarAlumnosxEspec()  throws GeneralException{
+    public ResponseEntity<List<Alumno>> ListarAlumnos()  throws GeneralException{
         try {
             AlumnoDAO objAluDAO = new AlumnoDAO();
             List<Alumno> lstAlumno = objAluDAO.ListarAlumnos();        
@@ -37,17 +40,101 @@ public class AlumnoController {
         } 
     }
     
-        @RequestMapping(value ="/ListarAlumnosxEspec/{IdEspecialidad}", 
+    
+    @RequestMapping(value ="/ListarAlumnosxEspec/{IdEspecialidad}", 
             method = RequestMethod.GET, 
             produces = MediaType.APPLICATION_JSON)
     public ResponseEntity<List<Alumno>> ListarAlumnosxEspec(
-            @PathVariable String IdEspecialidad){
-        AlumnoDAO objAluDAO = new AlumnoDAO();
-        List<Alumno> lstAlumno = 
-                objAluDAO
-                   .ListarAlumnosxEspecialidad(IdEspecialidad);
-        return new ResponseEntity<>(lstAlumno, HttpStatus.OK);
-        
+            @PathVariable String IdEspecialidad) throws GeneralException{
+        String ErrorControlado ="";
+        try {
+            AlumnoDAO objAluDAO = new AlumnoDAO();
+            List<Alumno> lstAlumno = 
+                    objAluDAO.ListarAlumnosxEspecialidad(IdEspecialidad);
+            if(lstAlumno.size() > 0){
+                return new ResponseEntity<>(lstAlumno, HttpStatus.OK);
+            }else{
+                ErrorControlado = HttpStatus.BAD_REQUEST.value()+
+                            "/No existe información para la consulta.";
+                throw new GeneralException(ErrorControlado);
+            }
+        } catch (Exception e) {
+            if(ErrorControlado.equals("")){
+                ErrorControlado = HttpStatus.BAD_REQUEST.value()+
+                            "/Error al conectarse a la base de datos";
+            }           
+            throw new GeneralException(ErrorControlado);
+        }      
     }
     
+    
+    @RequestMapping(value ="/ListarAlumnosxEspecPost", 
+            method = RequestMethod.POST, 
+            produces = MediaType.APPLICATION_JSON)
+    public ResponseEntity<List<Alumno>> ListarAlumnosxEspecPost(@RequestBody String objJson) throws GeneralException{
+        String ErrorControlado ="";
+        try {
+            AlumnoDAO objAluDAO = new AlumnoDAO();
+            Alumno objAlumno = new Gson()
+                .fromJson(objJson, Alumno.class);
+            List<Alumno> lstAlumno = 
+                    objAluDAO.ListarAlumnosxEspecialidad(objAlumno.getIdEspecialidad());
+            if(lstAlumno.size() > 0){
+                return new ResponseEntity<>(lstAlumno, HttpStatus.OK);
+            }else{
+                ErrorControlado = HttpStatus.BAD_REQUEST.value()+
+                            "/No existe información para la consulta.";
+                throw new GeneralException(ErrorControlado);
+            }
+        } catch (Exception e) {
+            if(ErrorControlado.equals("")){
+                ErrorControlado = HttpStatus.BAD_REQUEST.value()+
+                            "/Error al conectarse a la base de datos";
+            }           
+            throw new GeneralException(ErrorControlado);
+        }      
+    }
+    
+         @RequestMapping(value = "/EliminarAlumno", method = 
+            RequestMethod.POST, produces = MediaType.APPLICATION_JSON)
+    public @ResponseBody String EliminarAlumno(
+            @RequestBody String objJson){        
+        AlumnoDAO objAlumnoDAO = 
+                new AlumnoDAO();
+        Alumno objAlumno = new Gson()
+                .fromJson(objJson, Alumno.class);        
+        Boolean rpta = 
+                objAlumnoDAO
+                        .EliminarAlumno(objAlumno.getIdAlumno());
+        return new Gson().toJson(rpta);
+    }
+    
+          @RequestMapping(value = "/RegistrarAlumno", method = 
+            RequestMethod.POST, produces = MediaType.APPLICATION_JSON)
+    public @ResponseBody String RegistrarAlumno(
+            @RequestBody String objJson){        
+        AlumnoDAO objAlumnoDAO = 
+                new AlumnoDAO();
+        Alumno objAlumno = new Gson()
+                .fromJson(objJson, Alumno.class);        
+        Boolean rpta = 
+                objAlumnoDAO
+                        .RegistrarAlumno(objAlumno);
+        return new Gson().toJson(rpta);
+    }
+    
+          @RequestMapping(value = "/ModificarAlumno", method = 
+            RequestMethod.POST, produces = MediaType.APPLICATION_JSON)
+    public @ResponseBody String ModificarAlumno(
+            @RequestBody String objJson){        
+        AlumnoDAO objAlumnoDAO = 
+                new AlumnoDAO();
+        Alumno objAlumno = new Gson()
+                .fromJson(objJson, Alumno.class);        
+        Boolean rpta = 
+                objAlumnoDAO.ModificarAlumno(objAlumno);
+        return new Gson().toJson(rpta);
+    }
+    //INFORMACIÓN EN FORMATO JSON
+    //{"ApeAlumno":"bbbb","NomAlumno":"ccc","IdEspecialidad":"E01","Procedencia":"E", "IdAlumno":"A0042"}
 }
