@@ -7,6 +7,7 @@ package idat.edu.pe.controller;
 
 import com.google.gson.Gson;
 import idat.edu.pe.bean.Alumno;
+import idat.edu.pe.bean.Respuesta;
 import idat.edu.pe.dao.AlumnoDAO;
 import idat.edu.pe.exception.GeneralException;
 import java.util.List;
@@ -106,7 +107,11 @@ public class AlumnoController {
         Boolean rpta = 
                 objAlumnoDAO
                         .EliminarAlumno(objAlumno.getIdAlumno());
-        return new Gson().toJson(rpta);
+              Respuesta objRpta = new Respuesta();
+        String mensaje = rpta ? "Correcto" : "Error";
+        objRpta.setMensaje(mensaje);
+        objRpta.setRpta(rpta);        
+        return new Gson().toJson(objRpta);
     }
     
           @RequestMapping(value = "/RegistrarAlumno", method = 
@@ -120,7 +125,11 @@ public class AlumnoController {
         Boolean rpta = 
                 objAlumnoDAO
                         .RegistrarAlumno(objAlumno);
-        return new Gson().toJson(rpta);
+              Respuesta objRpta = new Respuesta();
+        String mensaje = rpta ? "Correcto" : "Error";
+        objRpta.setMensaje(mensaje);
+        objRpta.setRpta(rpta);        
+        return new Gson().toJson(objRpta);
     }
     
           @RequestMapping(value = "/ModificarAlumno", method = 
@@ -133,7 +142,11 @@ public class AlumnoController {
                 .fromJson(objJson, Alumno.class);        
         Boolean rpta = 
                 objAlumnoDAO.ModificarAlumno(objAlumno);
-        return new Gson().toJson(rpta);
+        Respuesta objRpta = new Respuesta();
+        String mensaje = rpta ? "Correcto" : "Error";
+        objRpta.setMensaje(mensaje);
+        objRpta.setRpta(rpta);        
+        return new Gson().toJson(objRpta);
     }
     //INFORMACIÓN EN FORMATO JSON
     //{"ApeAlumno":"bbbb","NomAlumno":"ccc","IdEspecialidad":"E01","Procedencia":"E", "IdAlumno":"A0042"}
